@@ -6,9 +6,9 @@
    [clojure.spec.alpha :as s]
    [top.kzre.krro.canvas.vector.curve :as vc])
   (:import
-   [java.util ArrayList Collection List]
-   [top.kzre.curve.bezier2d Curve]
-   [top.kzre.curve.catmullrom2d CRCurve CatmullRom2D ParamType]))
+   (java.util ArrayList Collection List)
+   (top.kzre.curve.bezier2d Curve)
+   (top.kzre.curve.catmullrom2d CRCurve CatmullRom2D ParamType)))
 
 ;; ═══════════════════════════════════════
 ;; param-type 双向映射

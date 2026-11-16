@@ -3,7 +3,7 @@
         top.kzre/krro-util-tile {:mvn/version "1.0-SNAPSHOT"}
         top.kzre/krro-canvas-raster {:mvn/version "0.1.0"}
         top.kzre/curve-bezier2d {:mvn/version "1.0-SNAPSHOT"}
-
+        top.kzre/curve-catmullrom2d {:mvn/version "1.0-SNAPSHOT"}
         com.taoensso/timbre {:mvn/version "6.3.1"}
         com.taoensso/tufte {:mvn/version "2.6.3"}
         }
