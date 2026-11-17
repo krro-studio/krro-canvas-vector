@@ -267,6 +267,13 @@
   (require-bezier "fit-segment" (:path-type path))
   (bezier.fit/fit-segment path seg-idx local-t x y))
 
+(defn fit-segment-free
+  "调整段 seg-idx 使目标点成为段的极点——过点精确，该点切线平行于两端点连线。
+   返回新 path。"
+  [path seg-idx x y]
+  (require-bezier "fit-segment-free" (:path-type path))
+  (bezier.fit/fit-segment-free path seg-idx x y))
+
 ;; ═══════════════════════════════════════
 ;; 渲染
 ;; ═══════════════════════════════════════
