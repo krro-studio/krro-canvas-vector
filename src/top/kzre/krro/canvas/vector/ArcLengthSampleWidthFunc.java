@@ -7,6 +7,7 @@ package top.kzre.krro.canvas.vector;
  * {@code sParams} 严格递增、位于 [0, 1]。{@link #map(double)} 线性插值。</p>
  */
 public final class ArcLengthSampleWidthFunc implements WidthFunction {
+    private static final double EPSILON = 1e-9;
 
     private final double[] sParams;
     private final double[] widths;
@@ -25,10 +26,14 @@ public final class ArcLengthSampleWidthFunc implements WidthFunction {
             throw new IllegalArgumentException("at least one sample required");
         }
         for (int i = 1; i < sParams.length; i++) {
-            if (!(sParams[i] > sParams[i - 1])) {
+            double ds = sParams[i] - sParams[i - 1];
+
+            if (ds < -EPSILON) {
+                // 真正递减，非法
                 throw new IllegalArgumentException(
-                        "sParams must be strictly increasing at index " + i);
+                        "sParams must be non-decreasing at index " + i);
             }
+
         }
         this.sParams = sParams.clone();
         this.widths = widths.clone();
@@ -62,7 +67,10 @@ public final class ArcLengthSampleWidthFunc implements WidthFunction {
         }
         double s0 = sParams[lo];
         double s1 = sParams[hi];
-        if (s1 == s0) return widths[lo];
+        // 零长度段（重合点）：取平均
+        if (Math.abs(s1 - s0) <= EPSILON) {
+            return (widths[lo] + widths[hi]) * 0.5;
+        }
         double ratio = (s - s0) / (s1 - s0);
         return widths[lo] + ratio * (widths[hi] - widths[lo]);
     }
