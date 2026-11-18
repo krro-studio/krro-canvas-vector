@@ -95,18 +95,16 @@
                       {:path-id path-id})))
     (let [n   (path/path-point-count p)
           idx (:point-idx anchor)]
-      (when (< n 2)
-        (throw (ex-info "cannot delete: path has fewer than 2 points"
-                        {:path-id path-id :point-count n})))
-      (when-not (<= 0 idx (dec n))
-        (throw (ex-info "index out of range"
-                        {:idx idx :point-count n})))
+      (cond
+        ;; 1 个顶点删除等同于删除整个路径
+        (< n 2)
+        (dissoc paths path-id)
 
-      (if (= n 2)
+        (= n 2)
         ;; 退化——不走 Java 曲线操作，直接构造单点
-        {:paths       (assoc paths path-id (degenerate-path p idx))
-         :deleted-idx idx}
+        (assoc paths path-id (degenerate-path p idx))
 
+        :else
         ;; 常规——曲线走 Java，采样走 width / TParamsUtils
         (let [seg-count     (dec n)
               del-seg       (deleted-seg-idx idx n)
@@ -118,8 +116,8 @@
 
               ;; t-params 重映射（Java）+ 保留索引
               ^TParamsUtils$DeleteResult dr (when (seq old-tp)
-                                 (TParamsUtils/deleteSegmentAt
-                                   (double-array old-tp) seg-count del-seg))
+                                              (TParamsUtils/deleteSegmentAt
+                                                (double-array old-tp) seg-count del-seg))
 
               new-tp        (when dr (vec (.-tParams dr)))
               kept-idx      (when dr (.-keptIdx dr))
@@ -151,5 +149,4 @@
                 (throw (ex-info "Curve width type not supported for deletion"
                                 {:path-id path-id :width-type width-type})))]
 
-          {:paths       (assoc paths path-id new-path)
-           :deleted-idx idx})))))
+          (assoc paths path-id new-path))))))
