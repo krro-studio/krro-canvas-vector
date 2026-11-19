@@ -14,7 +14,6 @@
 
    仅支持 :bezier 路径。"
   (:require
-    [top.kzre.krro.canvas.vector.anchor]
     [top.kzre.krro.canvas.vector.path :as path]
     [top.kzre.krro.canvas.vector.anchor :as anchor])
   (:import
@@ -32,6 +31,10 @@
 
 (defn path-id-of-handle [handle]
   (:path-id (:anchor handle)))
+
+(defn anchor-handles [^Anchor anchor]
+  [(->Handle anchor :in)
+   (->Handle anchor :out)])
 
 ;; ═══════════════════════════════════════
 ;; 内部：校验 / 更新
