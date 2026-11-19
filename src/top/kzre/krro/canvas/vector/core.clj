@@ -45,7 +45,7 @@
    :refer
    [path-curve path-points path-point-count path-closed?
     path-width-type max-path-width max-path-half-width
-    path-aabb seg-aabb
+    path-aabb seg-aabb seg-aabbs*
     path-tiles seg-tiles
     uniform-t-params
     valid-path?]])

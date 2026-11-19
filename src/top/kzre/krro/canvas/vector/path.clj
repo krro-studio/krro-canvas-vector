@@ -12,6 +12,8 @@
       TableMapping)
     (top.kzre.krro.canvas.vector CurveClipper)))
 
+(defrecord Segment [path-id seg-idx])
+
 (def ^:private default-stroke-width 1.0)
 
 (def ^:private valid-path-types #{:bezier :catmull-rom})
@@ -326,3 +328,15 @@
   [path idx]
   {:pre [(valid-path? path) (int? idx)]}
   (curve/aabb->edn (Segments/aabb (.getSegment (path->curve path) (int idx)))))
+
+(defn seg-aabbs*
+  "获取路径所有段的aabb, 注意返回的原Java AABB，这里不额外包装, 因为不是常规调用"
+  [path]
+  {:pre [(valid-path? path) ]}
+ (let [^Curve curve (path->curve path)
+       seg-count (.getSegmentCount curve)]
+   (if (< seg-count 1)
+     []
+     (map
+       (fn [idx] (Segments/aabb (.getSegment curve (int idx))))
+       (range seg-count)))))
