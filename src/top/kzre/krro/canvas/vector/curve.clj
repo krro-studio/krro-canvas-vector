@@ -45,8 +45,8 @@
   ^ControlPoint [p]
   (ControlPoint.
     (double (:x p))   (double (:y p))
-    (double (:dx1 p)) (double (:dy1 p))
-    (double (:dx2 p)) (double (:dy2 p))
+    (double (:dx1 p 0)) (double (:dy1 p 0))
+    (double (:dx2 p 0)) (double (:dy2 p 0))
     (edn->continuity (:continuity p))))
 
 (defn edn->curve
@@ -116,7 +116,7 @@
           :opt-un [::continuity]))   ; 缺省视作 :none
 
 (s/def ::closed boolean?)
-(s/def ::points (s/coll-of ::control-point :kind vector? :min-count 2))
+(s/def ::points (s/coll-of ::control-point :kind vector? :min-count 1))
 (s/def ::curve (s/keys :req-un [::closed ::points]))
 
 (s/def ::min-x number?)

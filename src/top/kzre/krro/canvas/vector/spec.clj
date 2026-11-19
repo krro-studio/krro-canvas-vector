@@ -15,9 +15,11 @@
 (s/def ::width-curve ::curve)
 ;; 宽度采样数据：等弧长采样宽度序列 与 对应的弧长参数序列
 (s/def ::width-samples (s/coll-of number? :kind vector?))
+(s/def ::t-samples (s/coll-of number? :kind vector?))
 (s/def ::arc-params (s/coll-of number? :kind vector?))
 (s/def ::bezier-path (s/keys :req-un [::path-type ::curve]
-                             :opt-un [::width-samples ::arc-params ::width-curve]))
+                             :opt-un [::width-samples ::t-samples
+                                      ::width-curve ::arc-params]))
 
 ;; ── Catmull‑Rom 路径 ─────────────────────────────
 (s/def ::curve ::crcurve/curve)

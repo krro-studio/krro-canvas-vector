@@ -189,6 +189,76 @@
       :t-width     (if (seq samples) (apply max samples) stroke-width)
       :curve       stroke-width)))
 
+;; ═══════════════════════════════════════
+;; 宽度求值
+;; ═══════════════════════════════════════
+
+(defn- lerp-at-t
+  "在有序参数 positions 与采样 samples 上按自然参数 t 线性插值。
+   - positions 单调不减，与 samples 等长
+   - t 会被钳到 [positions[0], positions[n-1]]（线性外推退化为端点值）
+   - n = 1 时直接返回唯一采样"
+  ^double [samples positions ^double t]
+  (let [n (count samples)]
+    (if (= n 1)
+      (double (nth samples 0))
+      (let [t    (max (double (nth positions 0))
+                      (min (double (nth positions (dec n))) t))
+            i    (loop [i 0]
+                   (if (or (>= i (dec n))
+                           (<= t (double (nth positions (inc i)))))
+                     i
+                     (recur (inc i))))
+            p-lo (double (nth positions i))
+            p-hi (double (nth positions (inc i)))
+            w-lo (double (nth samples i))
+            w-hi (double (nth samples (inc i)))
+            frac (if (> (- p-hi p-lo) 1e-12)
+                   (/ (- t p-lo) (- p-hi p-lo))
+                   0.0)]
+        (+ (* (- 1.0 frac) w-lo)
+           (* frac         w-hi))))))
+
+(defn path-width-eval
+  "路径参数求值. 求取路径在标准参数 t ∈ [0,1] 下的宽度。
+
+   标准参数 t 指曲线的自然参数（Bezier 的 t），与 :arc-params 无关：
+   :arc-params 是 uniform-s → t 的映射，用于渲染采样，不参与宽度插值。
+
+   - :fixed       —— 返回 [:style :stroke :width]（缺省 1.0）
+   - :point-width —— 采样位于自然参数 i/(n-1)，线性插值
+   - :t-width     —— 采样位于 (:t-params path)，线性插值
+   - :curve       —— 暂不支持，退回固定宽度"
+  [path t]
+  {:pre [(valid-path? path) (number? t)]}
+  (let [t             (double t)
+        default-width (get-in path [:style :stroke :width] default-stroke-width)]
+    (case (path-width-type path)
+      :fixed
+      default-width
+
+      :point-width
+      (let [samples (:width-samples path)
+            n       (count samples)]
+        (if (zero? n)
+          default-width
+          (lerp-at-t samples
+                     (if (= n 1)
+                       [0.0]
+                       (mapv #(/ (double %) (double (dec n))) (range n)))
+                     t)))
+
+      :t-width
+      (let [samples   (:width-samples path)
+            positions (:t-params path)]
+        (if (or (empty? samples) (empty? positions))
+          default-width
+          (lerp-at-t samples positions t)))
+
+      :curve
+      ;; 尚未实现 :width-curve 求值；与 max-path-width 一致退回固定宽度
+      default-width)))
+
 (defn max-path-half-width
   "路径描边半宽，用于瓦片扩展 / 裁剪可见性判断。"
   [path]
