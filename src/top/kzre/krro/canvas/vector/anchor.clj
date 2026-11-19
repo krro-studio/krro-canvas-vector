@@ -18,6 +18,14 @@
 (defrecord Anchor [path-id point-idx])
 (defrecord AnchorTranslation [^Anchor anchor dx dy])
 
+(defn anchor=
+  "锚点结构比较相等, 如果任一锚点为nil,返回nil"
+  [a1 a2]
+  (when (and a1 a2)
+    (and
+      (= (:path-id a1) (:point-idx a2))
+      (= (:point-idx a1) (:point-idx a2)))))
+
 (defn active-anchor-after-extrude
   "挤出后原锚点的新索引：起点挤出索引 0 → 1；终点挤出索引不变。"
   [^Anchor anchor is-start?]
